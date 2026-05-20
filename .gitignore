@@ -1,0 +1,20 @@
+### core ###
+.idea
+.vscode
+.DS_Store
+
+### project ###
+.env
+.env.**
+
+### cache ###
+__pycache__
+.pytest_cache
+.ruff_cache
+.venv
+
+### generated ###
+**/*.pyc
+
+### allow ###
+!.env.example

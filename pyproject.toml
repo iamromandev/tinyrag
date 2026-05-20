@@ -1,0 +1,37 @@
+[project]
+name = "tinyrag"
+version = "0.0.1"
+description = "RAG service with FastAPI, LangChain, and pgvector"
+requires-python = ">=3.14.3"
+dependencies = [
+    ### core ###
+    "toml==0.10.2",
+    "loguru==0.7.3",
+    "fastapi[all]==0.136.1",
+    ### db ###
+    "tortoise-orm[asyncpg,accel]==1.1.7",
+    ### rag ###
+    "langchain-core==0.3.80",
+    "langchain-community==0.3.31",
+    "langchain-openai==0.3.35",
+    "langchain-ollama==0.3.10",
+    "langchain-postgres==0.0.17",
+    "langchain-text-splitters==0.3.11",
+    "psycopg[binary]==3.2.12",
+    ### parsers ###
+    "pypdf==6.1.3",
+    "docx2txt==0.9",
+    "python-multipart==0.0.20",
+    ### others ###
+    "httpx==0.28.1",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit==4.6.0",
+    "ruff==0.15.12",
+    "ty==0.0.33",
+]
+
+[tool.tortoise]
+tortoise_orm = "src.data.db.DB_CONFIG"

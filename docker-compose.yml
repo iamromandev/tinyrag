@@ -1,0 +1,66 @@
+services:
+  db:
+    platform: linux/arm64
+    image: pgvector/pgvector:pg18
+    hostname: db-tinyrag
+    container_name: db-tinyrag
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    networks:
+      - db
+    volumes:
+      - db:/var/lib/postgresql
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      start_period: 10s
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  server:
+    platform: linux/arm64
+    hostname: server-tinyrag
+    container_name: server-tinyrag
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: dockerfile
+      target: local
+      args:
+        ENV: local
+        WORK_DIR: /workdir
+        INSTALL_DIR: /opt/install
+        PW_DIR: /pwdir
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/workdir
+    networks:
+      - db
+      - server
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+      - docker/.env.container
+    command: >
+      bash -c "python -m src.scripts.migrate && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload --loop uvloop"
+
+networks:
+  db:
+    name: db-tinyrag
+    driver: bridge
+  server:
+    name: server-tinyrag
+    driver: bridge
+
+volumes:
+  db:
+    name: db-tinyrag
