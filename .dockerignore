@@ -15,7 +15,3 @@ __pycache__
 ### generated ###
 **/*.lock
 **/*.pyc
-
-### project ###
-.env
-.env.**
