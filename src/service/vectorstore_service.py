@@ -28,7 +28,6 @@ class VectorstoreService:
 
     def add_chunks(
         self,
-        *,
         document_id: uuid.UUID,
         filename: str,
         chunks: list[LcDocument],

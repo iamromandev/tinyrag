@@ -25,7 +25,12 @@ def get_embeddings(settings: Settings | None = None) -> Embeddings:
         api_key=SecretStr(_require_api_key(settings)),
         base_url=settings.openrouter_base_url,
         model=settings.openrouter_embedding_model,
+        # OpenRouter's embedding models (e.g. Nvidia) accept plain strings and
+        # float output only. The OpenAI SDK otherwise defaults to base64 output
+        # and check_embedding_ctx_length tokenizes text into integer arrays —
+        # both are rejected and surface as "No embedding data received".
         check_embedding_ctx_length=False,
+        model_kwargs={"encoding_format": "float"},
     )
 
 
@@ -44,7 +49,7 @@ async def get_llm_health(settings: Settings | None = None) -> bool:
         api_key = _require_api_key(settings)
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(
-                f"{settings.openrouter_base_url.rstrip('/')}/key",
+                url=f"{settings.openrouter_base_url.rstrip('/')}/key",
                 headers={"Authorization": f"Bearer {api_key}"},
             )
         response.raise_for_status()

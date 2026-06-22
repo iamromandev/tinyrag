@@ -18,10 +18,10 @@ from src.service.vectorstore_service import VectorstoreService
 
 class IngestionService(BaseService):
     def __init__(
-        self,
-        document_repo: DocumentRepo,
-        vectorstore_service: VectorstoreService,
-        settings: Settings | None = None,
+            self,
+            document_repo: DocumentRepo,
+            vectorstore_service: VectorstoreService,
+            settings: Settings | None = None,
     ) -> None:
         super().__init__()
         self._document_repo = document_repo
@@ -53,12 +53,16 @@ class IngestionService(BaseService):
             tmp_path = Path(tmp.name)
 
         try:
-            raw_docs = load_documents_from_path(tmp_path, content_type=content_type)
+            raw_docs = load_documents_from_path(path=tmp_path, content_type=content_type)
             splitter = RecursiveCharacterTextSplitter(
                 chunk_size=self._settings.chunk_size,
                 chunk_overlap=self._settings.chunk_overlap,
             )
             chunks = splitter.split_documents(raw_docs)
+            # Drop empty / whitespace-only chunks: OpenRouter embedding models
+            # reject blank inputs, failing the whole batch with
+            # "No embedding data received".
+            chunks = [chunk for chunk in chunks if chunk.page_content.strip()]
             if not chunks:
                 raise Error.bad_request("No text chunks produced from document")
 

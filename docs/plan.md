@@ -240,7 +240,7 @@ class Document(Base):
     chunk_count = fields.IntField(default=0)
 
     class Meta:
-        table = "documents"
+        table = "document"
 ```
 
 ### Migration `0001_initial.py`

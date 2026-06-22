@@ -8,7 +8,7 @@ from src.core.error import Error
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
 
 
-def load_documents_from_path(path: Path, *, content_type: str) -> list[LcDocument]:
+def load_documents_from_path(path: Path,   content_type: str) -> list[LcDocument]:
     suffix = path.suffix.lower()
     if suffix not in ALLOWED_EXTENSIONS:
         raise Error.bad_request(
