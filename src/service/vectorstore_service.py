@@ -23,10 +23,11 @@ class VectorstoreService:
                 collection_name=self._settings.collection_name,
                 connection=self._settings.langchain_database_url,
                 use_jsonb=True,
+                async_mode=True,
             )
         return self._store
 
-    def add_chunks(
+    async def add_chunks(
         self,
         document_id: uuid.UUID,
         filename: str,
@@ -37,7 +38,7 @@ class VectorstoreService:
             chunk.metadata["document_id"] = str(document_id)
             chunk.metadata["filename"] = filename
             chunk.metadata["chunk_index"] = index
-        store.add_documents(chunks)
+        await store.aadd_documents(chunks)
 
     def as_retriever(self, *, document_ids: list[uuid.UUID] | None = None):
         search_kwargs: dict = {"k": self._settings.retrieval_top_k}

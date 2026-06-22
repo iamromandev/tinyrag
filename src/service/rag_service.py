@@ -6,6 +6,7 @@ from langchain_core.documents import Document as LcDocument
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
+from loguru import logger
 
 from src.config import Settings, get_settings
 from src.core.base import BaseService
@@ -45,6 +46,8 @@ class RagService(BaseService):
             document_ids=request.document_ids,
         )
         docs = await retriever.ainvoke(request.message)
+
+        logger.debug(f"{self._tag}|chat(): Retrieved {len(docs)} documents")
 
         prompt = ChatPromptTemplate.from_messages(
             [

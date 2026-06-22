@@ -74,7 +74,7 @@ class IngestionService(BaseService):
             )
 
             try:
-                self._vectorstore_service.add_chunks(
+                await self._vectorstore_service.add_chunks(
                     document_id=document.id,
                     filename=file.filename,
                     chunks=chunks,
