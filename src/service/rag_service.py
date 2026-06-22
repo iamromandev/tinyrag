@@ -35,6 +35,12 @@ class RagService(BaseService):
         self._settings = settings or get_settings()
 
     async def chat(self, request: ChatRequest) -> ChatResponse:
+        if request.document_ids is None:
+            prompt = ChatPromptTemplate.from_messages([("human", "{question}")])
+            chain = prompt | get_chat_model(self._settings) | StrOutputParser()
+            answer = await chain.ainvoke(request.message)
+            return ChatResponse(answer=answer, sources=[])
+
         retriever = self._vectorstore_service.as_retriever(
             document_ids=request.document_ids,
         )

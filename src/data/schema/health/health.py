@@ -4,6 +4,7 @@ from pydantic import Field
 
 from src.core.base import BaseSchema
 from src.core.type import Status
+from src.data.type import LlmProvider
 
 
 class DatabaseSchema(BaseSchema):
@@ -13,7 +14,7 @@ class DatabaseSchema(BaseSchema):
 
 class LlmSchema(BaseSchema):
     status: Annotated[Status, Field(default=Status.ERROR)]
-    provider: Annotated[str | None, Field(default=None)]
+    provider: Annotated[LlmProvider | None, Field(default=None)]
 
 
 class HealthSchema(BaseSchema):

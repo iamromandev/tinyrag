@@ -15,7 +15,7 @@ services:
       - db
     volumes:
       - db:/var/lib/postgresql
-      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      #- ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       start_period: 10s
@@ -49,7 +49,7 @@ services:
         condition: service_healthy
     env_file:
       - .env
-      - docker/.env.container
+      #- docker/.env.container
     command: >
       bash -c "python -m src.scripts.migrate && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload --loop uvloop"
 

@@ -1,23 +1,15 @@
 from functools import lru_cache
-from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated
 from urllib.parse import quote_plus
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from src.core.common import serialize
-from src.data.type import Env, LlmProvider
-
-_IN_DOCKER = Path("/.dockerenv").is_file()
-
+from src.data.type import Env
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=None if _IN_DOCKER else ".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     env: Annotated[Env, Field(description="Application environment")]
     debug: Annotated[bool, Field(description="Enable debug mode")]
@@ -29,17 +21,10 @@ class Settings(BaseSettings):
     db_user: Annotated[str, Field(description="Database user")]
     db_password: Annotated[SecretStr, Field(description="Database password")]
 
-    llm_provider: Annotated[LlmProvider, Field(description="Chat model provider")] = LlmProvider.OPENAI
-    embedding_provider: Annotated[
-        LlmProvider | None,
-        Field(default=None, description="Embedding provider; defaults to llm_provider"),
-    ] = None
-    openai_api_key: Annotated[SecretStr | None, Field(default=None, description="OpenAI API key")] = None
-    ollama_base_url: Annotated[str, Field(description="Ollama base URL")] = "http://localhost:11434"
-    openai_chat_model: str = "gpt-4o-mini"
-    openai_embedding_model: str = "text-embedding-3-small"
-    ollama_chat_model: str = "llama3.2"
-    ollama_embedding_model: str = "nomic-embed-text"
+    openrouter_api_key: Annotated[SecretStr | None, Field(default=None, description="OpenRouter API key")] = None
+    openrouter_base_url: Annotated[str, Field(description="OpenRouter API base URL")] = "https://openrouter.ai/api/v1"
+    openrouter_chat_model: str = "openai/gpt-4o-mini"
+    openrouter_embedding_model: str = "nvidia/llama-nemotron-embed-vl-1b-v2:free"
 
     chunk_size: int = 1000
     chunk_overlap: int = 200
@@ -48,17 +33,6 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 20 * 1024 * 1024
 
     cors_origins: str = ""
-
-    @field_validator("embedding_provider", mode="before")
-    @classmethod
-    def empty_embedding_provider_is_none(cls, value: Any) -> Any:
-        if value == "" or value is None:
-            return None
-        return value
-
-    @property
-    def effective_embedding_provider(self) -> LlmProvider:
-        return self.embedding_provider or self.llm_provider
 
     @property
     def cors_origin_list(self) -> list[str]:
