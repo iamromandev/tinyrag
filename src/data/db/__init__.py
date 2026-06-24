@@ -73,8 +73,8 @@ async def run_migration() -> None:
 
     try:
         await Tortoise.init(config=DB_CONFIG)
-        conn = Tortoise.get_connection("default")
-        await conn.execute_query("CREATE EXTENSION IF NOT EXISTS vector")
+        #conn = Tortoise.get_connection("default")
+        #await conn.execute_query("CREATE EXTENSION IF NOT EXISTS vector")
         await migrate(config=DB_CONFIG, progress=progress)
     except Exception:
         logger.exception("Tortoise migrate failed")

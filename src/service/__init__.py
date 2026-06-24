@@ -4,11 +4,13 @@ from typing import Annotated
 from fastapi import Depends
 
 from src.config import get_settings
-from src.data.repo import get_document_database_repo
+from src.data.repo import get_document_database_repo, get_prompt_database_repo
 from src.data.repo.document_db import DocumentDatabaseRepo
+from src.data.repo.prompt_db import PromptDatabaseRepo
 from src.service.document_service import DocumentService
 from src.service.health import get_health_service
 from src.service.ingestion_service import IngestionService
+from src.service.prompt_service import PromptService
 from src.service.rag_service import RagService
 from src.service.vectorstore_service import VectorstoreService
 
@@ -34,14 +36,25 @@ async def get_ingestion_service(
     yield IngestionService(document_repo, get_vectorstore_service())
 
 
+async def get_prompt_service(
+    prompt_repo: Annotated[PromptDatabaseRepo, Depends(get_prompt_database_repo)],
+) -> AsyncGenerator[PromptService]:
+    yield PromptService(prompt_repo)
+
+
 async def get_rag_service() -> AsyncGenerator[RagService]:
     yield RagService(get_vectorstore_service())
 
 
 __all__ = [
+    "DocumentService",
+    "IngestionService",
+    "PromptService",
+    "RagService",
     "get_document_service",
     "get_health_service",
     "get_ingestion_service",
+    "get_prompt_service",
     "get_rag_service",
     "get_vectorstore_service",
 ]
